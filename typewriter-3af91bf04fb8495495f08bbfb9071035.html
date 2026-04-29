@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Special+Elite&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #f5f5f5;
+  --paper: #fbf5e4;
+  --color: #1c1612;
+  --muted: #6b6151;
+  --rule: #1c1612;
+  --rule-soft: #c9bfa3;
+  --red: #8a1818;
+  --red-soft: #f3e3e0;
+}
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+body { background-color: var(--bg); display: flex; margin: 0; padding: 0; font-size: 0.9375rem; line-height: 1.625rem; font-family: 'Courier Prime', 'Courier New', Courier, ui-monospace, monospace; color: var(--color); -webkit-font-smoothing: auto; }
+table { font-size: 0.9375rem; border-collapse: collapse; font-family: inherit; }
+main { background-color: var(--paper); margin: 1rem 1.5rem; border: 1px solid var(--rule-soft); border-radius: 0; box-shadow: 0 1px 2px rgba(28,22,18,0.06), 0 10px 24px rgba(28,22,18,0.08); color: var(--color); padding: 2.5rem 3rem; min-width: 80ch; }
+h1 { margin: 0; font-weight: 400; font-size: 0.8125rem; padding-bottom: 0.625rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted); }
+h2 { margin: 0; font-family: 'Special Elite', 'Courier Prime', 'Courier New', Courier, monospace; font-weight: 400; font-size: 1.625rem; padding-bottom: 0.5rem; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 8px; }
+h3 { margin: 0; font-weight: 400; font-size: 0.9375rem; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.18em; }
+h4 { margin: 0; font-weight: 400; font-size: 0.875rem; padding-bottom: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
+ins { color: var(--color); text-decoration: none; font-weight: 700; }
+del { color: var(--red); text-decoration: line-through; }
+thead h1, thead h2, thead h3, thead h4 { text-align: center; }
+hr { border: none; background-color: var(--rule); margin: 0; height: 1px; }
+main > table { min-width: 80ch; width: 100%; }
+dl { display: grid; grid-gap: 0.375rem 1rem; grid-template-columns: max-content; }
+dt { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+dd { grid-column-start: 2; }
+table { border: 1px none var(--rule); border-collapse: collapse; }
+th { vertical-align: bottom; font-weight: 700; }
+thead .columns th { color: var(--color); font-weight: 700; padding: 0.25rem 0.5rem 0.625rem; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.8125rem; border-bottom: 1px solid var(--rule) !important; }
+thead .columnGroups th { color: var(--red); font-weight: 700; font-size: 0.875rem; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.08em; }
+tbody th { text-align: start; padding: 0.5rem 0.25rem 0.375rem; background-color: transparent; color: var(--color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.875rem; border-bottom: 1px solid var(--rule); }
+th, td { border: 1px none var(--rule); padding: 0.25rem 0.5rem; }
+tbody tr.totalRow td { font-weight: 700; }
+a { color: var(--red); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { background-color: var(--red-soft); }
+.border { border: 1px solid var(--rule); }
+#spinner { position: fixed; top: 50%; left: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 2px solid rgba(28,22,18,0.15); border-top-color: var(--rule); border-radius: 50%; opacity: 0; animation: fadein 200ms linear 200ms forwards, spin 800ms linear infinite; }
+@keyframes fadein { to { opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #292524; --paper: #1a1612; --color: #ddd0b3; --muted: #8a8270; --rule: #ddd0b3; --rule-soft: #3d362a; --red: #d96a55; --red-soft: #3a221d; }
+  main { box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.5); }
+}
+
+@page { margin: 0; }
+@media print {
+  html, body, main, table, thead, tbody, tfoot, tr, th, td { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background-color: var(--paper); }
+  body { display: block; }
+  main { margin: 0; padding: 14mm 16mm; width: 100%; min-width: 0; box-sizing: border-box; border: none; border-radius: 0; box-shadow: none; }
+  #spinner { display: none; }
+  main > table { min-width: initial; width: 100%; }
+  hr { background-color: #000; }
+  th, td { border: 1px none #000; }
+  a { color: #000; text-decoration: underline; pointer-events: none; cursor: default; background-color: transparent; }
+  .border { border: 1px solid #000; }
+}
+</style>
+</head>
+<body>
+<div id="spinner"></div>
+<main id="root" style="display: none"></main>
+<script>
+document.currentScript.remove();
+(async function () {
+  const root = document.getElementById('root');
+  try {
+    const response = await fetch('/api4/report-view-v1' + window.location.search, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin',
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      root.textContent = 'Error ' + response.status + ': ' + body;
+      return;
+    }
+    const model = await response.json();
+    if (!model) {
+      root.textContent = 'No data.';
+      return;
+    }
+    if (model.title) document.title = model.title;
+    if (model.direction) document.documentElement.dir = model.direction;
+    render(root, model);
+  } catch (err) {
+    root.textContent = 'Failed to load: ' + err;
+  } finally {
+    const spinner = document.getElementById('spinner');
+    if (spinner) spinner.remove();
+    root.style.display = '';
+  }
+})();
+
+function render(root, m) {
+  root.textContent = '';
+  const { leaves, groups, hasSubcolumns } = flattenColumns(m.columns || []);
+  const totalCols = leaves.length + 1;
+
+  const table = document.createElement('table');
+  table.id = 'report';
+
+  const thead = document.createElement('thead');
+  thead.appendChild(headBlockRow('businessName', totalCols, 'h1', m.business));
+  thead.appendChild(headBlockRow('reportTitle', totalCols, 'h2', m.title));
+  if (m.subtitle) thead.appendChild(headBlockRow(null, totalCols, 'h3', m.subtitle, 'reportSubtitle'));
+  if (m.subtitle2) thead.appendChild(headBlockRow(null, totalCols, 'h4', m.subtitle2, 'reportSubtitle'));
+
+  let rightAligned = true;
+  if (hasSubcolumns) {
+    rightAligned = false;
+    const tr = document.createElement('tr');
+    tr.className = 'columnGroups';
+    tr.appendChild(document.createElement('th'));
+    for (const g of groups) {
+      if (g.name) {
+        const th = document.createElement('th');
+        th.setAttribute('colspan', g.span);
+        th.setAttribute('style', 'font-weight: 700; width: 10ch; text-align: center; text-transform: uppercase; letter-spacing: 0.08em');
+        th.textContent = g.name;
+        tr.appendChild(th);
+      } else {
+        for (let i = 0; i < g.span; i++) tr.appendChild(document.createElement('th'));
+      }
+    }
+    thead.appendChild(tr);
+  }
+
+  const colTr = document.createElement('tr');
+  colTr.className = 'columns';
+  const firstTh = document.createElement('th');
+  colTr.appendChild(firstTh);
+  for (const c of leaves) {
+    const th = document.createElement('th');
+    th.setAttribute('style', 'font-weight: 700; width: 10ch; vertical-align: bottom; text-align: ' + (rightAligned ? 'right' : 'center'));
+    th.textContent = c.name || '';
+    colTr.appendChild(th);
+  }
+  thead.appendChild(colTr);
+
+  const blank = document.createElement('tr');
+  const blankTh = document.createElement('th');
+  blankTh.setAttribute('colspan', totalCols);
+  blankTh.innerHTML = '&nbsp;';
+  blank.appendChild(blankTh);
+  thead.appendChild(blank);
+
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  if (m.rows) renderRowsObject(m.rows, 0, leaves, tbody);
+  table.appendChild(tbody);
+
+  if (m.footer) {
+    const tfoot = document.createElement('tfoot');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', totalCols);
+    td.setAttribute('style', 'text-align: center; padding-top: 24px; white-space: pre-line; color: var(--muted); font-size: 0.8125rem; letter-spacing: 0.08em');
+    td.innerHTML = m.footer;
+    tr.appendChild(td);
+    tfoot.appendChild(tr);
+    table.appendChild(tfoot);
+  }
+
+  root.appendChild(table);
+}
+
+function flattenColumns(columns) {
+  const leaves = [];
+  const groups = [];
+  let hasSubcolumns = false;
+  for (const c of columns) {
+    if (c.subcolumns && c.subcolumns.length) {
+      hasSubcolumns = true;
+      groups.push({ name: c.name, span: c.subcolumns.length });
+      for (const sc of c.subcolumns) leaves.push(sc);
+    } else {
+      groups.push({ name: null, span: 1 });
+      leaves.push(c);
+    }
+  }
+  return { leaves, groups, hasSubcolumns };
+}
+
+function headBlockRow(id, colspan, tagName, text, className) {
+  const tr = document.createElement('tr');
+  if (id) tr.id = id;
+  if (className) tr.className = className;
+  const th = document.createElement('th');
+  th.setAttribute('colspan', colspan);
+  const inner = document.createElement(tagName);
+  inner.textContent = text || '';
+  th.appendChild(inner);
+  tr.appendChild(th);
+  return tr;
+}
+
+function spacerRow(colspan) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.setAttribute('colspan', colspan);
+  td.innerHTML = '&nbsp;';
+  tr.appendChild(td);
+  return tr;
+}
+
+function renderRowsObject(rowsObj, level, leaves, tbody) {
+  if (!rowsObj) return;
+  const items = rowsObj.items || [];
+
+  for (const row of items) {
+    if (row.isTotalRow) {
+      const totalCells = row.cells || rowsObj.totalCells;
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      tbody.appendChild(totalRow(row.displayName, totalCells, leaves, true, true, 0));
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      continue;
+    }
+    if (row.rows) {
+      renderGroupRow(row, level, leaves, tbody);
+    } else if (row.cells) {
+      renderSimpleRow(row, level, leaves, tbody);
+    }
+  }
+
+  if (rowsObj.renderTotalRow) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(rowsObj.totalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, level));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderGroupRow(row, level, leaves, tbody) {
+  const rowsObj = row.rows;
+
+  if (row.displayName) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', leaves.length + 1);
+    td.setAttribute('style', 'padding-inline-start: ' + ((level * 20) + 5) + 'px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em');
+    td.textContent = row.displayName;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  const innerLevel = row.displayName ? level + 1 : level;
+  renderRowsObject(rowsObj, innerLevel, leaves, tbody);
+
+  if (row.groupTotalText) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(row.groupTotalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, innerLevel));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderSimpleRow(row, level, leaves, tbody) {
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+
+  const tr = document.createElement('tr');
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px';
+  if (row.makeStandOut) nameStyle += '; font-weight: 700; border-top-style: solid; border-bottom-style: solid';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = row.displayName || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const col = leaves[i];
+    const cell = row.cells && row.cells[i];
+    const td = document.createElement('td');
+    let style = 'text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap';
+    if (col.isBold) style += '; font-weight: 700';
+    if (row.makeStandOut) style += '; font-weight: 700; border-top-style: solid; border-bottom-style: solid';
+    td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      appendCellContent(td, cell.text, cell.link && cell.link.href);
+    }
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+}
+
+function totalRow(name, cells, leaves, borderTop, borderBottom, level) {
+  const tr = document.createElement('tr');
+  tr.className = 'totalRow';
+
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px; font-weight: 700';
+  if (borderTop) nameStyle += '; border-top-style: solid';
+  if (borderBottom) nameStyle += '; border-bottom-style: solid';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = name || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const td = document.createElement('td');
+    const cell = cells && cells[i];
+    let style;
+    if (cell) {
+      style = 'text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; border-top-style: solid; border-bottom-style: solid';
+    } else {
+      style = '';
+      if (borderTop) style += 'border-top-style: solid';
+      if (borderBottom) style += (style ? '; ' : '') + 'border-bottom-style: solid';
+    }
+    if (style) td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      td.textContent = cell.text;
+    }
+    tr.appendChild(td);
+  }
+  return tr;
+}
+
+function appendCellContent(td, text, href) {
+  if (text == null) return;
+  if (href) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_top';
+    a.textContent = text;
+    td.appendChild(a);
+  } else {
+    td.textContent = text;
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Themes</title>
+    <style>
+        :root {
+            --fg: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --ok: #16a34a;
+            --ok-bg: #ecfdf5;
+            --ok-border: #a7f3d0;
+            --err: #dc2626;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --bg: #f9fafb;
+            --card: #ffffff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: var(--fg);
+            background: var(--bg);
+        }
+        h1 { margin: 0 0 4px; font-size: 20px; }
+        .subtitle { color: var(--muted); margin: 0 0 20px; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .card .step-number {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        label.field-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        select, button {
+            font: inherit;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+        }
+        select { width: 100%; }
+        select:disabled { background: #f3f4f6; color: var(--muted); }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button.primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        button.primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        button.danger {
+            background: white;
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        button.danger:hover:not(:disabled) {
+            background: var(--danger);
+            color: white;
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .hidden { display: none !important; }
+        .muted { color: var(--muted); }
+
+        .theme-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .theme-row:last-child { border-bottom: none; }
+        .theme-row .name {
+            font-weight: 600;
+            min-width: 160px;
+        }
+        .theme-row .status {
+            flex: 1;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .theme-row .status.installed { color: var(--ok); font-weight: 600; }
+        .theme-row .status.busy { color: var(--accent); }
+        .theme-row .status.error { color: var(--err); }
+        .theme-row button { min-width: 96px; }
+
+        .placeholder {
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-style: italic;
+        }
+        .summary {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .summary.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+    <h1>Report Themes</h1>
+    <p class="subtitle">Install or uninstall report themes for a Manager.io business.</p>
+
+    <div class="card">
+        <h2><span class="step-number">1</span>Select business</h2>
+        <label class="field-label" for="business">Business</label>
+        <select id="business" disabled><option>Loading businesses…</option></select>
+    </div>
+
+    <div class="card">
+        <h2><span class="step-number">2</span>Themes</h2>
+        <div id="themesList">
+            <div class="placeholder">Pick a business above to see themes.</div>
+        </div>
+        <div id="themesError" class="summary err hidden"></div>
+    </div>
+
+    <script>
+        // Tags every postMessage with a requestId and resolves when Manager replies.
+        async function postMessageWithResponse(message) {
+            return new Promise((resolve) => {
+                const requestId = crypto.randomUUID();
+                function onMessage(event) {
+                    if (event.data?.type?.endsWith('-response') && event.data?.requestId === requestId) {
+                        window.removeEventListener('message', onMessage);
+                        resolve(event.data.body);
+                    }
+                }
+                window.addEventListener('message', onMessage);
+                window.parent.postMessage({ ...message, requestId }, '*');
+            });
+        }
+
+        // Theme files in this directory: {slug}-{uuid32}.html. Add new themes by appending here.
+        const THEME_FILES = [
+            'accessible-283e93e6c15549cc9a8579b68b283ff5.html',
+            'brutalist-90acd87186944dd28d69e241d710f310.html',
+            'classic-ae50197a6ac2467199f749cd26a9ff4a.html',
+            'compact-7d4fad7ad86c4edc95dd653b7bac97fd.html',
+            'corporate-6a57bc87f06a403480e830ede45cb342.html',
+            'editorial-4ab0435258594972aabb5ba31b787ce4.html',
+            'handwritten-a9443bd61a864042a1ed0f1120541180.html',
+            'modern-233c2fc5627249fb90c08232703873bb.html',
+            'newspaper-264c45984fd9441a9eff0db08fc2c969.html',
+            'ornamental-1844f0e25949403dbc2212f97ae629e0.html',
+            'typewriter-3af91bf04fb8495495f08bbfb9071035.html',
+            'vibrant-d124427ee6c842c0bbf938e36f8fe27d.html',
+        ];
+
+        const PAGE_SIZE = 50;
+
+        function parseThemeFile(filename) {
+            // Match {slug}-{32 hex}.html
+            const m = filename.match(/^(.+)-([0-9a-f]{32})\.html$/i);
+            if (!m) return null;
+            const slug = m[1];
+            const hex = m[2].toLowerCase();
+            const uuid = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+            const name = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+            return { filename, slug, uuid, name };
+        }
+
+        const THEMES = THEME_FILES.map(parseThemeFile).filter(Boolean)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        const businessSel = document.getElementById('business');
+        const themesListEl = document.getElementById('themesList');
+        const themesErrorEl = document.getElementById('themesError');
+
+        // uuid -> { row, btn, statusEl }
+        const themeRows = {};
+        // uuid -> boolean
+        let installedMap = {};
+
+        function showError(text) {
+            themesErrorEl.textContent = text;
+            themesErrorEl.classList.remove('hidden');
+        }
+        function clearError() {
+            themesErrorEl.textContent = '';
+            themesErrorEl.classList.add('hidden');
+        }
+
+        function renderThemes() {
+            themesListEl.innerHTML = '';
+            for (const theme of THEMES) {
+                const row = document.createElement('div');
+                row.className = 'theme-row';
+                row.innerHTML = `
+                    <span class="name"></span>
+                    <span class="status">Checking…</span>
+                    <button type="button" disabled>…</button>
+                `;
+                row.querySelector('.name').textContent = theme.name;
+                const btn = row.querySelector('button');
+                const statusEl = row.querySelector('.status');
+                btn.addEventListener('click', () => onAction(theme));
+                themesListEl.appendChild(row);
+                themeRows[theme.uuid] = { row, btn, statusEl };
+            }
+        }
+
+        function setRowState(theme, state, text) {
+            const r = themeRows[theme.uuid];
+            if (!r) return;
+            r.statusEl.className = 'status' + (state ? ' ' + state : '');
+            r.statusEl.textContent = text;
+        }
+
+        function setRowButton(theme, mode) {
+            const r = themeRows[theme.uuid];
+            if (!r) return;
+            r.btn.disabled = false;
+            if (mode === 'install') {
+                r.btn.textContent = 'Install';
+                r.btn.className = 'primary';
+            } else if (mode === 'uninstall') {
+                r.btn.textContent = 'Uninstall';
+                r.btn.className = 'danger';
+            } else {
+                r.btn.disabled = true;
+                r.btn.textContent = '…';
+                r.btn.className = '';
+            }
+        }
+
+        function refreshRow(theme) {
+            const installed = !!installedMap[theme.uuid];
+            if (installed) {
+                setRowState(theme, 'installed', 'Installed');
+                setRowButton(theme, 'uninstall');
+            } else {
+                setRowState(theme, '', 'Not installed');
+                setRowButton(theme, 'install');
+            }
+        }
+
+        async function loadBusinesses() {
+            const res = await postMessageWithResponse({
+                type: 'api-request',
+                method: 'GET',
+                path: '/api4/businesses'
+            });
+            const businesses = res?.businesses || [];
+            if (!businesses.length) {
+                businessSel.innerHTML = '<option>No businesses found</option>';
+                return;
+            }
+            const names = businesses.map(b => b.name).filter(Boolean)
+                .sort((a, b) => a.localeCompare(b));
+            const opts = ['<option value="">-- Select --</option>']
+                .concat(names.map(n => `<option value="${encodeHtml(n)}">${encodeHtml(n)}</option>`))
+                .join('');
+            businessSel.innerHTML = opts;
+            businessSel.disabled = false;
+        }
+
+        function encodeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        async function fetchInstalledMap(businessName) {
+            // Page through report-theme-batch and collect keys belonging to our themes.
+            const ourUuids = new Set(THEMES.map(t => t.uuid));
+            const map = {};
+            let skip = 0;
+            while (true) {
+                const qs = new URLSearchParams({
+                    Business: businessName,
+                    Skip: String(skip),
+                    PageSize: String(PAGE_SIZE),
+                }).toString();
+                const res = await postMessageWithResponse({
+                    type: 'api-request',
+                    method: 'GET',
+                    path: `/api4/report-theme-batch?${qs}`
+                });
+                const items = res?.items || [];
+                for (const it of items) {
+                    const key = (it.key || it.item?.key || '').toLowerCase();
+                    if (key && ourUuids.has(key)) map[key] = true;
+                }
+                if (items.length < PAGE_SIZE) break;
+                skip += PAGE_SIZE;
+            }
+            return map;
+        }
+
+        async function loadThemeTemplate(filename) {
+            const res = await fetch(filename, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.text();
+        }
+
+        async function installTheme(theme, businessName) {
+            const template = await loadThemeTemplate(theme.filename);
+            const body = {
+                key: theme.uuid,
+                value: {
+                    name: theme.name,
+                    template,
+                    inactive: false,
+                    text: null,
+                    uniqueName: null,
+                    isBillableExpense: true,
+                    isAccountsReceivable: true,
+                    isAccountsPayable: true,
+                    isCashAtBank: true,
+                    isInventoryOnHand: true,
+                    hasCustomers: true,
+                    hasSuppliers: true,
+                    isProfitAndLossAccount: true,
+                    taxCodeEnabled: true,
+                    divisionEnabled: true,
+                    projectEnabled: true,
+                    key: theme.uuid,
+                    id: theme.uuid,
+                },
+                business: businessName,
+            };
+            const result = await postMessageWithResponse({
+                type: 'api-request',
+                method: 'PUT',
+                path: '/api4/report-theme',
+                body
+            });
+            if (result === true || result === 'true') return;
+            const msg = result?.message || result?.error || 'Unknown error.';
+            throw new Error(msg);
+        }
+
+        async function uninstallTheme(theme, businessName) {
+            const qs = new URLSearchParams({ Key: theme.uuid, Business: businessName }).toString();
+            const result = await postMessageWithResponse({
+                type: 'api-request',
+                method: 'DELETE',
+                path: `/api4/report-theme?${qs}`
+            });
+            if (result === true || result === 'true') return;
+            const msg = result?.message || result?.error || 'Unknown error.';
+            throw new Error(msg);
+        }
+
+        async function onAction(theme) {
+            const businessName = businessSel.value;
+            if (!businessName) return;
+            const installed = !!installedMap[theme.uuid];
+            const r = themeRows[theme.uuid];
+            r.btn.disabled = true;
+            setRowState(theme, 'busy', installed ? 'Uninstalling…' : 'Installing…');
+            try {
+                if (installed) {
+                    await uninstallTheme(theme, businessName);
+                    installedMap[theme.uuid] = false;
+                } else {
+                    await installTheme(theme, businessName);
+                    installedMap[theme.uuid] = true;
+                }
+                refreshRow(theme);
+            } catch (e) {
+                setRowState(theme, 'error', `${installed ? 'Uninstall' : 'Install'} failed: ${e?.message || e}`);
+                setRowButton(theme, installed ? 'uninstall' : 'install');
+            }
+        }
+
+        async function onBusinessChange() {
+            const businessName = businessSel.value;
+            clearError();
+            if (!businessName) {
+                themesListEl.innerHTML = '<div class="placeholder">Pick a business above to see themes.</div>';
+                return;
+            }
+            renderThemes();
+            for (const theme of THEMES) {
+                setRowState(theme, '', 'Checking…');
+                setRowButton(theme, null);
+            }
+            try {
+                installedMap = await fetchInstalledMap(businessName);
+                for (const theme of THEMES) refreshRow(theme);
+            } catch (e) {
+                showError(`Couldn't read themes from "${businessName}": ${e?.message || e}`);
+                for (const theme of THEMES) {
+                    setRowState(theme, 'error', 'Unknown');
+                    setRowButton(theme, null);
+                }
+            }
+        }
+
+        businessSel.addEventListener('change', onBusinessChange);
+
+        loadBusinesses().catch(e => {
+            businessSel.innerHTML = '<option>Error loading</option>';
+            showError(`Couldn't load businesses: ${e?.message || e}`);
+        });
+    </script>
+</body>
+</html>

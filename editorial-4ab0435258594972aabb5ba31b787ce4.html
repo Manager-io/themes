@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #f5f5f5;
+  --paper: #fbfaf6;
+  --color: #1a1714;
+  --muted: #756a5e;
+  --rule: #1a1714;
+  --rule-soft: #d8d2c4;
+  --accent: #8a1a1a;
+  --accent-soft: #f4ece4;
+}
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+body { background-color: var(--bg); display: flex; margin: 0; padding: 0; font-size: 0.9375rem; line-height: 1.55rem; font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, 'Times New Roman', serif; color: var(--color); -webkit-font-smoothing: antialiased; }
+table { font-size: 0.875rem; border-collapse: collapse; font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif; }
+main { background-color: var(--paper); margin: 1.5rem 2rem; border: 1px solid var(--rule-soft); border-radius: 0; box-shadow: 0 1px 2px rgba(26,23,20,0.04); color: var(--color); padding: 3rem 3.5rem; min-width: 80ch; }
+h1 { margin: 0; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; font-weight: 600; font-size: 0.6875rem; padding-bottom: 0.625rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent); }
+h2 { margin: 0; font-weight: 700; font-size: 2.625rem; line-height: 1.05; padding-bottom: 0.5rem; letter-spacing: -0.015em; }
+thead.has-dropcap h2::first-letter { font-size: 4rem; font-weight: 700; float: inline-start; line-height: 0.9; padding-inline-end: 0.5rem; padding-top: 0.25rem; color: var(--accent); }
+h3 { margin: 0; font-weight: 400; font-style: italic; font-size: 1.125rem; padding-bottom: 0.25rem; color: var(--muted); }
+h4 { margin: 0; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 0.75rem; padding-bottom: 0.5rem; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; }
+ins { color: #0a6037; text-decoration: none; font-weight: 600; }
+del { color: var(--accent); text-decoration: line-through; }
+thead h1, thead h2, thead h3, thead h4 { text-align: center; }
+hr { border: none; background-color: var(--rule); margin: 0; height: 1px; }
+.rule-double { border-top: 3px double var(--rule); }
+main > table { min-width: 80ch; width: 100%; }
+dl { display: grid; grid-gap: 0.5rem 1.5rem; grid-template-columns: max-content; }
+dt { font-family: 'Inter', sans-serif; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; }
+dd { grid-column-start: 2; }
+table { border: 1px none var(--rule-soft); border-collapse: collapse; }
+th { vertical-align: bottom; font-weight: 600; }
+thead .columns th { font-family: 'Inter', sans-serif; color: var(--muted); font-weight: 500; padding: 0.5rem 0.625rem 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6875rem; border-bottom: 1px solid var(--rule) !important; }
+thead .columnGroups th { font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 400; color: var(--accent); font-size: 0.9375rem; padding-bottom: 0.25rem; }
+tbody th { text-align: start; padding: 0.625rem 0.25rem 0.375rem; background-color: transparent; color: var(--color); font-weight: 700; font-size: 1rem; font-style: italic; border-bottom: 1px solid var(--rule); letter-spacing: 0; text-transform: none; }
+th, td { border: 1px none var(--rule-soft); padding: 0.4375rem 0.625rem; }
+tbody tr.totalRow td { font-weight: 600; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--accent) 35%, transparent); }
+a:hover { border-bottom-color: var(--accent); }
+.border { border: 1px solid var(--rule-soft); }
+#spinner { position: fixed; top: 50%; left: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 1px solid rgba(26,23,20,0.15); border-top-color: var(--accent); border-radius: 50%; opacity: 0; animation: fadein 200ms linear 200ms forwards, spin 800ms linear infinite; }
+@keyframes fadein { to { opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #292524; --paper: #1a1614; --color: #ede4d3; --muted: #9b8d7a; --rule: #ede4d3; --rule-soft: #3a322a; --accent: #d97755; --accent-soft: #2a201a; }
+  main { box-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+}
+
+@page { margin: 0; }
+@media print {
+  html, body, main, table, thead, tbody, tfoot, tr, th, td { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background-color: var(--paper); }
+  body { display: block; }
+  main { margin: 0; padding: 14mm 16mm; width: 100%; min-width: 0; box-sizing: border-box; border: none; border-radius: 0; box-shadow: none; }
+  #spinner { display: none; }
+  main > table { min-width: initial; width: 100%; }
+  hr { background-color: #000; }
+  th, td { border: 1px none #000; }
+  a { color: #000; text-decoration: none; pointer-events: none; cursor: default; border-bottom: none; }
+}
+</style>
+</head>
+<body>
+<div id="spinner"></div>
+<main id="root" style="display: none"></main>
+<script>
+document.currentScript.remove();
+(async function () {
+  const root = document.getElementById('root');
+  try {
+    const response = await fetch('/api4/report-view-v1' + window.location.search, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin',
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      root.textContent = 'Error ' + response.status + ': ' + body;
+      return;
+    }
+    const model = await response.json();
+    if (!model) {
+      root.textContent = 'No data.';
+      return;
+    }
+    if (model.title) document.title = model.title;
+    if (model.direction) document.documentElement.dir = model.direction;
+    render(root, model);
+  } catch (err) {
+    root.textContent = 'Failed to load: ' + err;
+  } finally {
+    const spinner = document.getElementById('spinner');
+    if (spinner) spinner.remove();
+    root.style.display = '';
+  }
+})();
+
+function render(root, m) {
+  root.textContent = '';
+  const { leaves, groups, hasSubcolumns } = flattenColumns(m.columns || []);
+  const totalCols = leaves.length + 1;
+
+  const table = document.createElement('table');
+  table.id = 'report';
+
+  const thead = document.createElement('thead');
+  thead.appendChild(headBlockRow('businessName', totalCols, 'h1', m.business));
+  thead.appendChild(headBlockRow('reportTitle', totalCols, 'h2', m.title));
+  if (m.subtitle) thead.appendChild(headBlockRow(null, totalCols, 'h3', m.subtitle, 'reportSubtitle'));
+  if (m.subtitle2) thead.appendChild(headBlockRow(null, totalCols, 'h4', m.subtitle2, 'reportSubtitle'));
+
+  const ruleRow = document.createElement('tr');
+  const ruleTh = document.createElement('th');
+  ruleTh.setAttribute('colspan', totalCols);
+  ruleTh.setAttribute('style', 'padding: 0.875rem 0 0.375rem');
+  const ruleHr = document.createElement('hr');
+  ruleHr.className = 'rule-double';
+  ruleHr.style.cssText = 'background: transparent; height: 0';
+  ruleTh.appendChild(ruleHr);
+  ruleRow.appendChild(ruleTh);
+  thead.appendChild(ruleRow);
+
+  let rightAligned = true;
+  if (hasSubcolumns) {
+    rightAligned = false;
+    const tr = document.createElement('tr');
+    tr.className = 'columnGroups';
+    tr.appendChild(document.createElement('th'));
+    for (const g of groups) {
+      if (g.name) {
+        const th = document.createElement('th');
+        th.setAttribute('colspan', g.span);
+        th.setAttribute('style', 'font-style: italic; font-weight: 400; width: 10ch; text-align: center');
+        th.textContent = g.name;
+        tr.appendChild(th);
+      } else {
+        for (let i = 0; i < g.span; i++) tr.appendChild(document.createElement('th'));
+      }
+    }
+    thead.appendChild(tr);
+  }
+
+  const colTr = document.createElement('tr');
+  colTr.className = 'columns';
+  const firstTh = document.createElement('th');
+  colTr.appendChild(firstTh);
+  for (const c of leaves) {
+    const th = document.createElement('th');
+    th.setAttribute('style', 'width: 10ch; vertical-align: bottom; text-align: ' + (rightAligned ? 'right' : 'center'));
+    th.textContent = c.name || '';
+    colTr.appendChild(th);
+  }
+  thead.appendChild(colTr);
+
+  const blank = document.createElement('tr');
+  const blankTh = document.createElement('th');
+  blankTh.setAttribute('colspan', totalCols);
+  blankTh.innerHTML = '&nbsp;';
+  blank.appendChild(blankTh);
+  thead.appendChild(blank);
+
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  if (m.rows) renderRowsObject(m.rows, 0, leaves, tbody);
+  table.appendChild(tbody);
+
+  if (m.footer) {
+    const tfoot = document.createElement('tfoot');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', totalCols);
+    td.setAttribute('style', "text-align: center; padding-top: 24px; white-space: pre-line; font-style: italic; color: var(--muted); font-size: 0.8125rem; border-top: 1px solid var(--rule-soft); margin-top: 1rem");
+    td.innerHTML = m.footer;
+    tr.appendChild(td);
+    tfoot.appendChild(tr);
+    table.appendChild(tfoot);
+  }
+
+  root.appendChild(table);
+}
+
+function flattenColumns(columns) {
+  const leaves = [];
+  const groups = [];
+  let hasSubcolumns = false;
+  for (const c of columns) {
+    if (c.subcolumns && c.subcolumns.length) {
+      hasSubcolumns = true;
+      groups.push({ name: c.name, span: c.subcolumns.length });
+      for (const sc of c.subcolumns) leaves.push(sc);
+    } else {
+      groups.push({ name: null, span: 1 });
+      leaves.push(c);
+    }
+  }
+  return { leaves, groups, hasSubcolumns };
+}
+
+function headBlockRow(id, colspan, tagName, text, className) {
+  const tr = document.createElement('tr');
+  if (id) tr.id = id;
+  if (className) tr.className = className;
+  const th = document.createElement('th');
+  th.setAttribute('colspan', colspan);
+  const inner = document.createElement(tagName);
+  inner.textContent = text || '';
+  th.appendChild(inner);
+  tr.appendChild(th);
+  return tr;
+}
+
+function spacerRow(colspan) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.setAttribute('colspan', colspan);
+  td.innerHTML = '&nbsp;';
+  tr.appendChild(td);
+  return tr;
+}
+
+function renderRowsObject(rowsObj, level, leaves, tbody) {
+  if (!rowsObj) return;
+  const items = rowsObj.items || [];
+
+  for (const row of items) {
+    if (row.isTotalRow) {
+      const totalCells = row.cells || rowsObj.totalCells;
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      tbody.appendChild(totalRow(row.displayName, totalCells, leaves, true, true, 0));
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      continue;
+    }
+    if (row.rows) {
+      renderGroupRow(row, level, leaves, tbody);
+    } else if (row.cells) {
+      renderSimpleRow(row, level, leaves, tbody);
+    }
+  }
+
+  if (rowsObj.renderTotalRow) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(rowsObj.totalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, level));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderGroupRow(row, level, leaves, tbody) {
+  const rowsObj = row.rows;
+
+  if (row.displayName) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', leaves.length + 1);
+    td.setAttribute('style', 'padding-inline-start: ' + ((level * 20) + 5) + 'px; font-weight: 600; font-style: italic; padding-top: 0.5rem');
+    td.textContent = row.displayName;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  const innerLevel = row.displayName ? level + 1 : level;
+  renderRowsObject(rowsObj, innerLevel, leaves, tbody);
+
+  if (row.groupTotalText) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(row.groupTotalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, innerLevel));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderSimpleRow(row, level, leaves, tbody) {
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+
+  const tr = document.createElement('tr');
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px';
+  if (row.makeStandOut) nameStyle += '; font-weight: 600; border-top-style: solid; border-bottom-style: solid';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = row.displayName || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const col = leaves[i];
+    const cell = row.cells && row.cells[i];
+    const td = document.createElement('td');
+    let style = 'text-align: right; font-variant-numeric: tabular-nums oldstyle-nums; white-space: nowrap';
+    if (col.isBold) style += '; font-weight: 600';
+    if (row.makeStandOut) style += '; font-weight: 600; border-top-style: solid; border-bottom-style: solid';
+    td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      appendCellContent(td, cell.text, cell.link && cell.link.href);
+    }
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+}
+
+function totalRow(name, cells, leaves, borderTop, borderBottom, level) {
+  const tr = document.createElement('tr');
+  tr.className = 'totalRow';
+
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px; font-weight: 600; font-style: italic';
+  if (borderTop) nameStyle += '; border-top-style: solid';
+  if (borderBottom) nameStyle += '; border-bottom-style: solid';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = name || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const td = document.createElement('td');
+    const cell = cells && cells[i];
+    let style;
+    if (cell) {
+      style = 'text-align: right; font-variant-numeric: tabular-nums oldstyle-nums; white-space: nowrap; font-weight: 600; border-top-style: solid; border-bottom-style: solid';
+    } else {
+      style = '';
+      if (borderTop) style += 'border-top-style: solid';
+      if (borderBottom) style += (style ? '; ' : '') + 'border-bottom-style: solid';
+    }
+    if (style) td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      td.textContent = cell.text;
+    }
+    tr.appendChild(td);
+  }
+  return tr;
+}
+
+function appendCellContent(td, text, href) {
+  if (text == null) return;
+  if (href) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_top';
+    a.textContent = text;
+    td.appendChild(a);
+  } else {
+    td.textContent = text;
+  }
+}
+
+</script>
+</body>
+</html>

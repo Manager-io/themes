@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #f5f5f5;
+  --paper: #fdfaf0;
+  --color: #1c2440;
+  --muted: #5a6b8c;
+  --rule: #2a3554;
+  --rule-soft: #c8d0e0;
+  --line: #b8d4ec;
+  --margin-line: #d96a6a;
+  --highlight: #fff6a0;
+  --accent: #c0392b;
+  --pos: #2d7a3f;
+  --neg: #c0392b;
+  --line-height: 1.875rem;
+  --baseline: calc(var(--line-height) * 0.78);
+}
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+body { background-color: var(--bg); display: flex; margin: 0; padding: 0; font-size: 1.0625rem; line-height: var(--line-height); font-family: 'Kalam', 'Comic Sans MS', cursive; color: var(--color); -webkit-font-smoothing: antialiased; }
+table { font-size: 1.0625rem; border-collapse: collapse; font-family: inherit; }
+main {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, transparent 0, transparent calc(3.5rem - 1px), var(--margin-line) calc(3.5rem - 1px), var(--margin-line) 3.5rem, transparent 3.5rem),
+    repeating-linear-gradient(to bottom,
+      transparent 0,
+      transparent calc(var(--baseline) - 0.75px),
+      var(--line) calc(var(--baseline) - 0.75px),
+      var(--line) calc(var(--baseline) + 0.75px),
+      transparent calc(var(--baseline) + 0.75px),
+      transparent var(--line-height));
+  background-position: 0 0, 0 0;
+  background-clip: padding-box;
+  background-attachment: local;
+  margin: 1.5rem 2rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: 2px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.05), 0 6px 16px rgba(0,0,0,0.08);
+  color: var(--color);
+  padding: var(--line-height) 2.25rem var(--line-height) 5rem;
+  min-width: 80ch;
+}
+h1 { margin: 0; font-weight: 700; font-size: 1.0625rem; line-height: var(--line-height); padding: 0; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+h2 { margin: 0; font-family: 'Caveat', cursive; font-weight: 700; font-size: 2.75rem; line-height: calc(var(--line-height) * 2); padding: 0 0.375rem; letter-spacing: 0.005em; background-image: linear-gradient(to bottom, transparent 60%, var(--highlight) 60%, var(--highlight) 92%, transparent 92%); display: inline; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+h3 { margin: 0; font-weight: 700; font-size: 1.0625rem; line-height: var(--line-height); padding: 0; color: var(--color); font-style: italic; }
+h4 { margin: 0; font-weight: 400; font-size: 1.0625rem; line-height: var(--line-height); padding: 0; color: var(--muted); font-style: italic; }
+ins { color: var(--pos); text-decoration: none; font-weight: 700; }
+ins::before { content: '✓ '; }
+del { color: var(--neg); text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-style: wavy; }
+thead h1, thead h2, thead h3, thead h4 { text-align: center; }
+thead .reportTitle th { padding: 0; }
+thead .reportTitle h2 { transform: rotate(-0.5deg); }
+hr { border: none; background-color: transparent; margin: 0; height: var(--line-height); position: relative; }
+hr::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background-image: linear-gradient(to right, transparent, var(--rule) 8%, var(--rule) 92%, transparent); transform: translateY(-50%) rotate(-0.3deg); border-radius: 2px; }
+main > table { min-width: 80ch; width: 100%; }
+dl { display: grid; grid-gap: 0.375rem 1rem; grid-template-columns: max-content; }
+dt { font-weight: 700; font-size: 1.0625rem; color: var(--muted); }
+dd { grid-column-start: 2; }
+table { border: 1px none var(--rule-soft); border-collapse: collapse; }
+th { vertical-align: bottom; font-weight: 700; }
+thead .columns th { color: var(--muted); font-weight: 700; font-size: 1.0625rem; padding: 0 0.5rem; line-height: var(--line-height); font-style: italic; }
+thead .columnGroups th { color: var(--accent); font-weight: 700; font-size: 1.0625rem; line-height: var(--line-height); }
+tbody th { text-align: start; padding: 0 0.25rem; background-color: transparent; color: var(--accent); font-weight: 700; font-size: 1.0625rem; line-height: var(--line-height); letter-spacing: 0.04em; text-transform: uppercase; }
+th, td { border: 1px none var(--rule-soft); padding: 0 0.5rem; line-height: var(--line-height); }
+tbody tr.totalRow td { font-weight: 700; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { background-color: var(--highlight); }
+.border { border: 1px solid var(--rule); border-radius: 6px; }
+#spinner { position: fixed; top: 50%; left: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border: 3px dashed rgba(28,36,64,0.2); border-top-color: var(--accent); border-radius: 50%; opacity: 0; animation: fadein 200ms linear 200ms forwards, spin 1.6s linear infinite; }
+@keyframes fadein { to { opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #292524; --paper: #1f2233; --color: #e8edf6; --muted: #a8b3c8; --rule: #e8edf6; --rule-soft: #3a4258; --line: #2c3346; --margin-line: #d96a6a; --highlight: #6a5a20; --accent: #ff9b8a; --pos: #88e0a0; --neg: #ff9b8a; }
+  main { box-shadow: 0 1px 1px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.5); }
+  h2 { color: var(--paper); }
+}
+
+@page { margin: 0; }
+@media print {
+  html, body, main, table, thead, tbody, tfoot, tr, th, td { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background-color: var(--paper); }
+  body { display: block; }
+  main { margin: 0; padding: calc(var(--line-height) * 2) 16mm calc(var(--line-height) * 2) 28mm; width: 100%; min-width: 0; box-sizing: border-box; border: none; border-radius: 0; box-shadow: none; }
+  #spinner { display: none; }
+  main > table { min-width: initial; width: 100%; }
+  a { pointer-events: none; cursor: default; }
+}
+</style>
+</head>
+<body>
+<div id="spinner"></div>
+<main id="root" style="display: none"></main>
+<script>
+document.currentScript.remove();
+(async function () {
+  const root = document.getElementById('root');
+  try {
+    const response = await fetch('/api4/report-view-v1' + window.location.search, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin',
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      root.textContent = 'Error ' + response.status + ': ' + body;
+      return;
+    }
+    const model = await response.json();
+    if (!model) {
+      root.textContent = 'No data.';
+      return;
+    }
+    if (model.title) document.title = model.title;
+    if (model.direction) document.documentElement.dir = model.direction;
+    render(root, model);
+  } catch (err) {
+    root.textContent = 'Failed to load: ' + err;
+  } finally {
+    const spinner = document.getElementById('spinner');
+    if (spinner) spinner.remove();
+    root.style.display = '';
+  }
+})();
+
+function render(root, m) {
+  root.textContent = '';
+  const { leaves, groups, hasSubcolumns } = flattenColumns(m.columns || []);
+  const totalCols = leaves.length + 1;
+
+  const table = document.createElement('table');
+  table.id = 'report';
+
+  const thead = document.createElement('thead');
+  thead.appendChild(headBlockRow('businessName', totalCols, 'h1', m.business));
+  thead.appendChild(headBlockRow('reportTitle', totalCols, 'h2', m.title, 'reportTitle'));
+  if (m.subtitle) thead.appendChild(headBlockRow(null, totalCols, 'h3', m.subtitle, 'reportSubtitle'));
+  if (m.subtitle2) thead.appendChild(headBlockRow(null, totalCols, 'h4', m.subtitle2, 'reportSubtitle'));
+
+  let rightAligned = true;
+  if (hasSubcolumns) {
+    rightAligned = false;
+    const tr = document.createElement('tr');
+    tr.className = 'columnGroups';
+    tr.appendChild(document.createElement('th'));
+    for (const g of groups) {
+      if (g.name) {
+        const th = document.createElement('th');
+        th.setAttribute('colspan', g.span);
+        th.setAttribute('style', "font-weight: 700; width: 10ch; text-align: center");
+        th.textContent = g.name;
+        tr.appendChild(th);
+      } else {
+        for (let i = 0; i < g.span; i++) tr.appendChild(document.createElement('th'));
+      }
+    }
+    thead.appendChild(tr);
+  }
+
+  const colTr = document.createElement('tr');
+  colTr.className = 'columns';
+  const firstTh = document.createElement('th');
+  colTr.appendChild(firstTh);
+  for (const c of leaves) {
+    const th = document.createElement('th');
+    th.setAttribute('style', "font-weight: 700; width: 10ch; vertical-align: bottom; text-align: " + (rightAligned ? 'right' : 'center'));
+    th.textContent = c.name || '';
+    colTr.appendChild(th);
+  }
+  thead.appendChild(colTr);
+
+  const blank = document.createElement('tr');
+  const blankTh = document.createElement('th');
+  blankTh.setAttribute('colspan', totalCols);
+  blankTh.innerHTML = '&nbsp;';
+  blank.appendChild(blankTh);
+  thead.appendChild(blank);
+
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  if (m.rows) renderRowsObject(m.rows, 0, leaves, tbody);
+  table.appendChild(tbody);
+
+  if (m.footer) {
+    const tfoot = document.createElement('tfoot');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', totalCols);
+    td.setAttribute('style', "text-align: center; padding-top: var(--line-height); white-space: pre-line; color: var(--muted); font-style: italic");
+    td.innerHTML = m.footer;
+    tr.appendChild(td);
+    tfoot.appendChild(tr);
+    table.appendChild(tfoot);
+  }
+
+  root.appendChild(table);
+}
+
+function flattenColumns(columns) {
+  const leaves = [];
+  const groups = [];
+  let hasSubcolumns = false;
+  for (const c of columns) {
+    if (c.subcolumns && c.subcolumns.length) {
+      hasSubcolumns = true;
+      groups.push({ name: c.name, span: c.subcolumns.length });
+      for (const sc of c.subcolumns) leaves.push(sc);
+    } else {
+      groups.push({ name: null, span: 1 });
+      leaves.push(c);
+    }
+  }
+  return { leaves, groups, hasSubcolumns };
+}
+
+function headBlockRow(id, colspan, tagName, text, className) {
+  const tr = document.createElement('tr');
+  if (id) tr.id = id;
+  if (className) tr.className = className;
+  const th = document.createElement('th');
+  th.setAttribute('colspan', colspan);
+  const inner = document.createElement(tagName);
+  inner.textContent = text || '';
+  th.appendChild(inner);
+  tr.appendChild(th);
+  return tr;
+}
+
+function spacerRow(colspan) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.setAttribute('colspan', colspan);
+  td.innerHTML = '&nbsp;';
+  tr.appendChild(td);
+  return tr;
+}
+
+function renderRowsObject(rowsObj, level, leaves, tbody) {
+  if (!rowsObj) return;
+  const items = rowsObj.items || [];
+
+  for (const row of items) {
+    if (row.isTotalRow) {
+      const totalCells = row.cells || rowsObj.totalCells;
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      tbody.appendChild(totalRow(row.displayName, totalCells, leaves, true, true, 0));
+      tbody.appendChild(spacerRow(leaves.length + 1));
+      continue;
+    }
+    if (row.rows) {
+      renderGroupRow(row, level, leaves, tbody);
+    } else if (row.cells) {
+      renderSimpleRow(row, level, leaves, tbody);
+    }
+  }
+
+  if (rowsObj.renderTotalRow) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(rowsObj.totalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, level));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderGroupRow(row, level, leaves, tbody) {
+  const rowsObj = row.rows;
+
+  if (row.displayName) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.setAttribute('colspan', leaves.length + 1);
+    td.setAttribute('style', "padding-inline-start: " + ((level * 20) + 5) + "px; font-weight: 700; color: var(--accent)");
+    td.textContent = row.displayName;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  const innerLevel = row.displayName ? level + 1 : level;
+  renderRowsObject(rowsObj, innerLevel, leaves, tbody);
+
+  if (row.groupTotalText) {
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+    tbody.appendChild(totalRow(row.groupTotalText, rowsObj.totalCells, leaves, rowsObj.makeTotalStandOut, rowsObj.makeTotalStandOut, innerLevel));
+    if (rowsObj.makeTotalStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+  }
+}
+
+function renderSimpleRow(row, level, leaves, tbody) {
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+
+  const tr = document.createElement('tr');
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px';
+  if (row.makeStandOut) nameStyle += '; font-weight: 700';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = row.displayName || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const col = leaves[i];
+    const cell = row.cells && row.cells[i];
+    const td = document.createElement('td');
+    let style = 'text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap';
+    if (col.isBold) style += '; font-weight: 700';
+    if (row.makeStandOut) style += '; font-weight: 700';
+    td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      appendCellContent(td, cell.text, cell.link && cell.link.href);
+    }
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+
+  if (row.makeStandOut) tbody.appendChild(spacerRow(leaves.length + 1));
+}
+
+function totalRow(name, cells, leaves, borderTop, borderBottom, level) {
+  const tr = document.createElement('tr');
+  tr.className = 'totalRow';
+
+  let nameStyle = 'padding-inline-start: ' + ((level * 20) + 5) + 'px; font-weight: 700';
+  const nameTd = document.createElement('td');
+  nameTd.setAttribute('style', nameStyle);
+  nameTd.textContent = name || '';
+  tr.appendChild(nameTd);
+
+  for (let i = 0; i < leaves.length; i++) {
+    const td = document.createElement('td');
+    const cell = cells && cells[i];
+    let style;
+    if (cell) {
+      style = 'text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700';
+    } else {
+      style = '';
+    }
+    if (style) td.setAttribute('style', style);
+
+    if (cell && cell.text != null) {
+      if (cell.value != null) td.setAttribute('data-tsv', String(cell.value));
+      td.textContent = cell.text;
+    }
+    tr.appendChild(td);
+  }
+  return tr;
+}
+
+function appendCellContent(td, text, href) {
+  if (text == null) return;
+  if (href) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_top';
+    a.textContent = text;
+    td.appendChild(a);
+  } else {
+    td.textContent = text;
+  }
+}
+
+</script>
+</body>
+</html>
