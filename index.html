@@ -115,6 +115,29 @@
         .theme-row .status.busy { color: var(--accent); }
         .theme-row .status.error { color: var(--err); }
         .theme-row button { min-width: 96px; }
+        .theme-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .theme-row input[type="checkbox"]:disabled { cursor: not-allowed; }
+
+        .batch-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .batch-toolbar label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+        .batch-toolbar input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .batch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
         .placeholder {
             padding: 24px;
@@ -143,6 +166,16 @@
 
     <div class="card">
         <h2><span class="step-number">2</span>Themes</h2>
+        <div id="batchToolbar" class="batch-toolbar hidden">
+            <label>
+                <input type="checkbox" id="selectAll" />
+                <span>Select all</span>
+            </label>
+            <div class="batch-actions">
+                <button type="button" id="installSelectedBtn" class="primary" disabled>Install selected</button>
+                <button type="button" id="uninstallSelectedBtn" class="danger" disabled>Uninstall selected</button>
+            </div>
+        </div>
         <div id="themesList">
             <div class="placeholder">Pick a business above to see themes.</div>
         </div>
@@ -200,11 +233,19 @@
         const businessSel = document.getElementById('business');
         const themesListEl = document.getElementById('themesList');
         const themesErrorEl = document.getElementById('themesError');
+        const batchToolbar = document.getElementById('batchToolbar');
+        const selectAllEl = document.getElementById('selectAll');
+        const installSelectedBtn = document.getElementById('installSelectedBtn');
+        const uninstallSelectedBtn = document.getElementById('uninstallSelectedBtn');
 
-        // uuid -> { row, btn, statusEl }
+        // uuid -> { row, btn, statusEl, checkbox }
         const themeRows = {};
         // uuid -> boolean
         let installedMap = {};
+        // Set of selected theme uuids
+        const selectedSet = new Set();
+        // True while a batch operation is in flight
+        let batchBusy = false;
 
         function showError(text) {
             themesErrorEl.textContent = text;
@@ -217,10 +258,13 @@
 
         function renderThemes() {
             themesListEl.innerHTML = '';
+            for (const key of Object.keys(themeRows)) delete themeRows[key];
+            selectedSet.clear();
             for (const theme of THEMES) {
                 const row = document.createElement('div');
                 row.className = 'theme-row';
                 row.innerHTML = `
+                    <input type="checkbox" />
                     <span class="name"></span>
                     <span class="status">Checking…</span>
                     <button type="button" disabled>…</button>
@@ -228,10 +272,17 @@
                 row.querySelector('.name').textContent = theme.name;
                 const btn = row.querySelector('button');
                 const statusEl = row.querySelector('.status');
+                const checkbox = row.querySelector('input[type="checkbox"]');
                 btn.addEventListener('click', () => onAction(theme));
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) selectedSet.add(theme.uuid);
+                    else selectedSet.delete(theme.uuid);
+                    updateToolbar();
+                });
                 themesListEl.appendChild(row);
-                themeRows[theme.uuid] = { row, btn, statusEl };
+                themeRows[theme.uuid] = { row, btn, statusEl, checkbox };
             }
+            updateToolbar();
         }
 
         function setRowState(theme, state, text) {
@@ -326,49 +377,48 @@
             return await res.text();
         }
 
-        async function installTheme(theme, businessName) {
-            const template = await loadThemeTemplate(theme.filename);
-            const body = {
+        function buildThemeValue(theme, template) {
+            return {
+                name: theme.name,
+                template,
+                inactive: false,
+                text: null,
+                uniqueName: null,
+                isBillableExpense: true,
+                isAccountsReceivable: true,
+                isAccountsPayable: true,
+                isCashAtBank: true,
+                isInventoryOnHand: true,
+                hasCustomers: true,
+                hasSuppliers: true,
+                isProfitAndLossAccount: true,
+                taxCodeEnabled: true,
+                divisionEnabled: true,
+                projectEnabled: true,
                 key: theme.uuid,
-                value: {
-                    name: theme.name,
-                    template,
-                    inactive: false,
-                    text: null,
-                    uniqueName: null,
-                    isBillableExpense: true,
-                    isAccountsReceivable: true,
-                    isAccountsPayable: true,
-                    isCashAtBank: true,
-                    isInventoryOnHand: true,
-                    hasCustomers: true,
-                    hasSuppliers: true,
-                    isProfitAndLossAccount: true,
-                    taxCodeEnabled: true,
-                    divisionEnabled: true,
-                    projectEnabled: true,
-                    key: theme.uuid,
-                    id: theme.uuid,
-                },
-                business: businessName,
+                id: theme.uuid,
             };
+        }
+
+        // PUT /api4/report-theme-batch handles install (value: object) and
+        // uninstall (value: null) in one request. `targets` is an array of
+        // { theme, install: boolean }.
+        async function applyBatch(targets, businessName) {
+            const installs = targets.filter(t => t.install);
+            const templates = await Promise.all(installs.map(t => loadThemeTemplate(t.theme.filename)));
+            const templateByUuid = {};
+            installs.forEach((t, i) => { templateByUuid[t.theme.uuid] = templates[i]; });
+
+            const values = targets.map(t => ({
+                key: t.theme.uuid,
+                value: t.install ? buildThemeValue(t.theme, templateByUuid[t.theme.uuid]) : null,
+            }));
+
             const result = await postMessageWithResponse({
                 type: 'api-request',
                 method: 'PUT',
-                path: '/api4/report-theme',
-                body
-            });
-            if (result === true || result === 'true') return;
-            const msg = result?.message || result?.error || 'Unknown error.';
-            throw new Error(msg);
-        }
-
-        async function uninstallTheme(theme, businessName) {
-            const qs = new URLSearchParams({ Key: theme.uuid, Business: businessName }).toString();
-            const result = await postMessageWithResponse({
-                type: 'api-request',
-                method: 'DELETE',
-                path: `/api4/report-theme?${qs}`
+                path: '/api4/report-theme-batch',
+                body: { values, business: businessName }
             });
             if (result === true || result === 'true') return;
             const msg = result?.message || result?.error || 'Unknown error.';
@@ -376,6 +426,7 @@
         }
 
         async function onAction(theme) {
+            if (batchBusy) return;
             const businessName = businessSel.value;
             if (!businessName) return;
             const installed = !!installedMap[theme.uuid];
@@ -383,18 +434,103 @@
             r.btn.disabled = true;
             setRowState(theme, 'busy', installed ? 'Uninstalling…' : 'Installing…');
             try {
-                if (installed) {
-                    await uninstallTheme(theme, businessName);
-                    installedMap[theme.uuid] = false;
-                } else {
-                    await installTheme(theme, businessName);
-                    installedMap[theme.uuid] = true;
-                }
+                await applyBatch([{ theme, install: !installed }], businessName);
+                installedMap[theme.uuid] = !installed;
                 refreshRow(theme);
             } catch (e) {
                 setRowState(theme, 'error', `${installed ? 'Uninstall' : 'Install'} failed: ${e?.message || e}`);
                 setRowButton(theme, installed ? 'uninstall' : 'install');
+            } finally {
+                updateToolbar();
             }
+        }
+
+        async function runBatchAction(targets, businessName, busyText, verb) {
+            batchBusy = true;
+            for (const t of THEMES) {
+                const r = themeRows[t.uuid];
+                if (r) r.checkbox.disabled = true;
+            }
+            for (const t of targets) {
+                setRowState(t.theme, 'busy', busyText);
+                setRowButton(t.theme, null);
+            }
+            updateToolbar();
+
+            try {
+                await applyBatch(targets, businessName);
+                for (const t of targets) {
+                    installedMap[t.theme.uuid] = t.install;
+                    selectedSet.delete(t.theme.uuid);
+                    const r = themeRows[t.theme.uuid];
+                    if (r) r.checkbox.checked = false;
+                    refreshRow(t.theme);
+                }
+            } catch (e) {
+                const msg = e?.message || String(e);
+                for (const t of targets) {
+                    setRowState(t.theme, 'error', `${verb} failed: ${msg}`);
+                    setRowButton(t.theme, t.install ? 'install' : 'uninstall');
+                }
+            } finally {
+                batchBusy = false;
+                for (const t of THEMES) {
+                    const r = themeRows[t.uuid];
+                    if (r) r.checkbox.disabled = false;
+                }
+                updateToolbar();
+            }
+        }
+
+        async function onInstallSelected() {
+            const businessName = businessSel.value;
+            if (!businessName || batchBusy) return;
+            const targets = THEMES
+                .filter(t => selectedSet.has(t.uuid) && !installedMap[t.uuid])
+                .map(theme => ({ theme, install: true }));
+            if (!targets.length) return;
+            await runBatchAction(targets, businessName, 'Installing…', 'Install');
+        }
+
+        async function onUninstallSelected() {
+            const businessName = businessSel.value;
+            if (!businessName || batchBusy) return;
+            const targets = THEMES
+                .filter(t => selectedSet.has(t.uuid) && installedMap[t.uuid])
+                .map(theme => ({ theme, install: false }));
+            if (!targets.length) return;
+            await runBatchAction(targets, businessName, 'Uninstalling…', 'Uninstall');
+        }
+
+        function updateToolbar() {
+            if (!Object.keys(themeRows).length) {
+                batchToolbar.classList.add('hidden');
+                return;
+            }
+            batchToolbar.classList.remove('hidden');
+
+            const total = THEMES.length;
+            const selCount = selectedSet.size;
+            if (selCount === 0) {
+                selectAllEl.checked = false;
+                selectAllEl.indeterminate = false;
+            } else if (selCount === total) {
+                selectAllEl.checked = true;
+                selectAllEl.indeterminate = false;
+            } else {
+                selectAllEl.checked = false;
+                selectAllEl.indeterminate = true;
+            }
+            selectAllEl.disabled = batchBusy;
+
+            const selectedThemes = THEMES.filter(t => selectedSet.has(t.uuid));
+            const toInstall = selectedThemes.filter(t => !installedMap[t.uuid]).length;
+            const toUninstall = selectedThemes.filter(t => installedMap[t.uuid]).length;
+
+            installSelectedBtn.textContent = toInstall > 0 ? `Install selected (${toInstall})` : 'Install selected';
+            uninstallSelectedBtn.textContent = toUninstall > 0 ? `Uninstall selected (${toUninstall})` : 'Uninstall selected';
+            installSelectedBtn.disabled = toInstall === 0 || batchBusy;
+            uninstallSelectedBtn.disabled = toUninstall === 0 || batchBusy;
         }
 
         async function onBusinessChange() {
@@ -402,6 +538,10 @@
             clearError();
             if (!businessName) {
                 themesListEl.innerHTML = '<div class="placeholder">Pick a business above to see themes.</div>';
+                for (const key of Object.keys(themeRows)) delete themeRows[key];
+                selectedSet.clear();
+                installedMap = {};
+                batchToolbar.classList.add('hidden');
                 return;
             }
             renderThemes();
@@ -412,6 +552,7 @@
             try {
                 installedMap = await fetchInstalledMap(businessName);
                 for (const theme of THEMES) refreshRow(theme);
+                updateToolbar();
             } catch (e) {
                 showError(`Couldn't read themes from "${businessName}": ${e?.message || e}`);
                 for (const theme of THEMES) {
@@ -421,6 +562,21 @@
             }
         }
 
+        selectAllEl.addEventListener('change', () => {
+            if (batchBusy) return;
+            if (selectAllEl.checked) {
+                for (const t of THEMES) selectedSet.add(t.uuid);
+            } else {
+                selectedSet.clear();
+            }
+            for (const t of THEMES) {
+                const r = themeRows[t.uuid];
+                if (r) r.checkbox.checked = selectedSet.has(t.uuid);
+            }
+            updateToolbar();
+        });
+        installSelectedBtn.addEventListener('click', () => { onInstallSelected(); });
+        uninstallSelectedBtn.addEventListener('click', () => { onUninstallSelected(); });
         businessSel.addEventListener('change', onBusinessChange);
 
         loadBusinesses().catch(e => {
